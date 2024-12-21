@@ -209,7 +209,6 @@ CREATE INDEX FOR (r:Directors) ON (r.Director_ID);
    RETURN count(m) AS movies_in_Tues_2004
    ```
 
-   
 
 ### 按照电影名称进行查询及统计
 
@@ -221,7 +220,6 @@ CREATE INDEX FOR (r:Directors) ON (r.Director_ID);
    RETURN count(DISTINCT f) AS versions_of_MarvelsTheAvengers
    ```
 
-   
 
 ### 按照导演进行查询及统计
 
@@ -233,7 +231,6 @@ CREATE INDEX FOR (r:Directors) ON (r.Director_ID);
    RETURN count(m) AS movies_directed_by_Nolan
    ```
 
-   
 
 ### 按照演员进行查询及统计
 
@@ -253,7 +250,6 @@ CREATE INDEX FOR (r:Directors) ON (r.Director_ID);
    RETURN count(DISTINCT m) AS movies_stared_by_Andrew_Garfield
    ```
 
-   
 
 ### 按照电影类别进行查询及统计
 
@@ -273,7 +269,6 @@ CREATE INDEX FOR (r:Directors) ON (r.Director_ID);
    RETURN count(m) AS action_movies_count
    ```
 
-   
 
 ### 按照用户评价进行查询及统计
 
@@ -301,9 +296,9 @@ CREATE INDEX FOR (r:Directors) ON (r.Director_ID);
 
 1. 经常合作的演员有哪些
 
-   创建关联：
+   为合作创建关联：
 
-2. ```cypher
+   ```cypher
    CALL apoc.periodic.iterate(
    "MATCH (a1:Actors)-[:ACT]->(m:Movies)<-[:ACT]-(a2:Actors)
    RETURN a1, a2, COUNT(m) AS collaborations",
@@ -314,8 +309,6 @@ CREATE INDEX FOR (r:Directors) ON (r.Director_ID);
    ); 
    ```
 
-   //Started streaming 1 records after 10 ms and completed after 69550 ms.
-
    ```cypher
    MATCH (a1:Actors)-[r:COOPERATED]-(a2:Actors)
    WHERE r.count > 20
@@ -323,9 +316,9 @@ CREATE INDEX FOR (r:Directors) ON (r.Director_ID);
    ORDER BY r.count DESC;
    ```
 
-   Started streaming 3136 records after 53 ms and completed after 39738 ms, displaying first 1000 rows.
+2. 经常合作的导演和演员有哪些
 
-3. 经常合作的导演和演员有哪些
+   为合作创建关联：
 
    ```cypher
    CALL apoc.periodic.iterate(
@@ -345,7 +338,7 @@ CREATE INDEX FOR (r:Directors) ON (r.Director_ID);
    ORDER BY r.count DESC;
    ```
 
-4. 如果要拍一部XXX类型的电影，最受关注（评论最多）的演员组合（2人）是什么？
+4. 如果要拍一部XXX类型的电影，最受关注（评论最多）的演员组合（2人）是什么
 
    ```cypher
    MATCH (m:Movies)-[:HAS_GENRE]->(g:Genres)
@@ -361,9 +354,7 @@ CREATE INDEX FOR (r:Directors) ON (r.Director_ID);
    RETURN Actor1, Actor2, review_count
    ```
 
-   Connection lost. Server didn't respond in 120000ms
-
-   修改大小，并将评论数直接作为Movies节点的一个属性后
+   修改图数据库大小，并将评论数直接作为Movies节点的一个属性后
 
    ```cypher
    MATCH (m:Movies)-[:HAS_GENRE]->(g:Genres)
@@ -376,32 +367,31 @@ CREATE INDEX FOR (r:Directors) ON (r.Director_ID);
    ORDER BY total_reviews DESC
    LIMIT 1
    ```
-
-   Started streaming 1 records after 20 ms and completed after 5178 ms.
-
-5. 如果要拍一部XXX类型的电影，最受关注（评论最多）的演员组合（3人）是什么？）
+   
+5. 如果要拍一部XXX类型的电影，最受关注（评论最多）的演员组合（3人）是什么
 
    ```cypher
    MATCH (g:Genres {Genre: "Action"})<-[:HAS_GENRE]-(m:Movies)
-   WHERE m.Reviews_Count > 10
    SET m:FilteredMovie
    RETURN count(m);
    
    MATCH (m:FilteredMovie)<-[:ACT]-(a:Actors)
    WITH m, collect(a.Actor_Name) AS actorNames, m.Reviews_Count AS reviews
-   WHERE size(actorNames) >= 3
+   WHERE size(actorNames) >= 3 // 过滤掉少于三人参演的电影
    UNWIND apoc.coll.combinations(actorNames, 3) AS trio
    RETURN trio, sum(reviews) AS totalReviews
    ORDER BY totalReviews DESC
    LIMIT 1;
-   
    ```
-
    
 
 ### 按照上述条件的组合查询和统计
 
+1. 某个演员参演了几部某类型的电影
 
+
+
+2. 某演员在某年参演了多少电影
 
 
 
