@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hive Databases</title>
+</head>
+<body>
+    <h1>Hive Databases</h1>
+    <ul id="databases"></ul>
+
+    <script>
+        // 调用后端 API，获取数据库列表
+        fetch('http://127.0.0.1:5000/databases')
+            .then(response => response.json())
+            .then(data => {
+                const dbList = document.getElementById('databases');
+                if (data.databases) {
+                    // 遍历数据库列表，展示在页面上
+                    data.databases.forEach(db => {
+                        const li = document.createElement('li');
+                        li.textContent = db;
+                        dbList.appendChild(li);
+                    });
+                } else {
+                    dbList.textContent = 'Error: ' + data.error;
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    </script>
+</body>
+</html>
