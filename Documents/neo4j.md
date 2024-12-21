@@ -1,10 +1,8 @@
-# Neo4j图数据库
+# neo4j图数据库
 
 ## neo4j配置
 
-
-
-
+> 详细配置见**neo4j.conf**文件中
 
 ## 建表语句
 
@@ -387,13 +385,21 @@ CREATE INDEX FOR (r:Directors) ON (r.Director_ID);
 
 ### 按照上述条件的组合查询和统计
 
-1. 某个演员参演了几部某类型的电影
+1. XX演员参演了几部XX类型的电影
 
+   ```cypher
+   MATCH (a:Actors {Actor_Name: "Andrew Garfield"})-[:ACT]->(m:Movies)-[:HAS_GENRE]->(g:Genres {Genre: "Action"})
+   RETURN a.Actor_Name AS Actor, g.Genre AS Genre, count(m) AS MovieCount;
+   ```
 
+2. XX演员在XX年参演了多少电影
 
-2. 某演员在某年参演了多少电影
+   ```cypher
+   MATCH (a:Actors {Actor_Name: "Andrew Garfield"})-[:ACT]->(m:Movies {Year: 2012})
+   RETURN a.Actor_Name AS Actor, m.Year AS Year, count(m) AS MovieCount;
+   ```
 
-
+   
 
 
 
