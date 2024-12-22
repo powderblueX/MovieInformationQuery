@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Database Query Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 20px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .query-section {
+            margin-bottom: 40px;
+        }
+        .query-group {
+            margin-top: 10px;
+        }
+        select, button, input {
+            padding: 10px;
+            margin-right: 10px;
+            font-size: 16px;
+        }
+        .results {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .results pre {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Movie Database Query Interface</h1>
+
+    <!-- 按时间查询 -->
+    <div class="query-section">
+        <h2>1. 按时间查询</h2>
+        <div class="query-group">
+            <label for="time-query">选择查询类型：</label>
+            <select id="time-query">
+                <option value="year">某年有多少电影</option>
+                <option value="month">某年某月有多少电影</option>
+                <option value="quarter">某年某季度有多少电影</option>
+                <option value="weekday">2004.1.20(周二)新增多少电影</option>
+            </select>
+            <input type="number" id="year" placeholder="年份 (如2020)">
+            <input type="number" id="month" placeholder="月份 (1~12)">
+            <input type="number" id="quarter" placeholder="季度 (1~4)">
+            <button onclick="runQuery('time')">查询</button>
+        </div>
+    </div>
+
+    <!-- 按电影名称查询 -->
+    <div class="query-section">
+        <h2>2. 按电影名称查询</h2>
+        <div class="query-group">
+            <label for="movie-title">电影名称：</label>
+            <input type="text" id="movie-title" placeholder="如：The Avengers">
+            <button onclick="runQuery('title')">查询</button>
+        </div>
+    </div>
+
+    <!-- 按导演查询 -->
+    <div class="query-section">
+        <h2>3. 按导演查询</h2>
+        <div class="query-group">
+            <label for="director-name">导演名称：</label>
+            <input type="text" id="director-name" placeholder="如：Christopher Nolan">
+            <button onclick="runQuery('director')">查询</button>
+        </div>
+    </div>
+
+    <!-- 按演员查询 -->
+    <div class="query-section">
+        <h2>4. 按演员查询</h2>
+        <div class="query-group">
+            <label for="actor-query">选择查询类型：</label>
+            <select id="actor-query">
+                <option value="star">主演多少电影</option>
+                <option value="act">参演多少电影</option>
+            </select>
+            <input type="text" id="actor-name" placeholder="演员名称 (如：Andrew Garfield)">
+            <button onclick="runQuery('actor')">查询</button>
+        </div>
+    </div>
+
+    <!-- 按类别查询 -->
+    <div class="query-section">
+        <h2>5. 按类别查询</h2>
+        <div class="query-group">
+            <label for="genre">电影类别：</label>
+            <input type="text" id="genre" placeholder="如：Action">
+            <button onclick="runQuery('genre')">查询</button>
+        </div>
+    </div>
+
+    <!-- 按评分查询 -->
+    <div class="query-section">
+        <h2>6. 按评分查询</h2>
+        <div class="query-group">
+            <label for="rating-query">选择查询类型：</label>
+            <select id="rating-query">
+                <option value="score-above">评分大于X的电影</option>
+                <option value="positive">有正面评价的电影</option>
+            </select>
+            <input type="number" id="score" placeholder="评分 (如：3)">
+            <button onclick="runQuery('rating')">查询</button>
+        </div>
+    </div>
+
+    <!-- 按关系查询 -->
+    <div class="query-section">
+        <h2>7. 按关系查询</h2>
+        <div class="query-group">
+            <label for="relationship">选择关系：</label>
+            <select id="relationship">
+                <option value="actors">经常合作的演员</option>
+                <option value="directors">经常合作的导演和演员</option>
+                <option value="pair">最受关注的演员组合</option>
+            </select>
+            <button onclick="runQuery('relation')">查询</button>
+        </div>
+    </div>
+
+    <!-- 组合查询 -->
+    <div class="query-section">
+        <h2>8. 组合查询</h2>
+        <div class="query-group">
+            <label for="combine-query">选择组合查询：</label>
+            <select id="combine-query">
+                <option value="actor-movies-year">某演员在某年参演了多少部电影</option>
+                <option value="actor-movies-genre">某演员一共演了多少部某类型的电影</option>
+            </select>
+            <input type="text" id="actor-name-combine" placeholder="演员名称 (如：Andrew Garfield)">
+            <input type="text" id="genre-combine" placeholder="电影类型 (如：Action)">
+            <input type="number" id="year-combine" placeholder="年份 (如：2012)">
+            <button onclick="runQuery('combine')">查询</button>
+        </div>
+    </div>
+
+    <!-- 查询结果展示 -->
+    <!-- 查询结果展示 -->
+    <div class="results" id="results">
+        <h3>查询结果：</h3>
+        <pre id="query-output">暂无结果</pre>
+        <h3>执行时间对比：</h3>
+        <table id="time-comparison" border="1">
+            <thead>
+                <tr>
+                    <th>数据库</th>
+                    <th>执行时间 (ms)</th>
+                    <th>查询结果</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- 动态插入 -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    function prepareQueryPayload(queryType) {
+        const payload = { queryType, parameters: {} };
+        switch (queryType) {
+            case 'time':
+                payload.parameters = {
+                    timeType: document.getElementById('time-query').value,
+                    year: document.getElementById('year').value || null,
+                    month: document.getElementById('month').value || null,
+                    quarter: document.getElementById('quarter').value || null,
+                };
+                break;
+            case 'title':
+                payload.parameters = { title: document.getElementById('movie-title').value };
+                break;
+            case 'director':
+                payload.parameters = { director: document.getElementById('director-name').value };
+                break;
+            case 'actor':
+                payload.parameters = {
+                    actorType: document.getElementById('actor-query').value,
+                    actorName: document.getElementById('actor-name').value,
+                };
+                break;
+            case 'genre':
+                payload.parameters = { genre: document.getElementById('genre').value };
+                break;
+            case 'rating':
+                payload.parameters = {
+                    ratingType: document.getElementById('rating-query').value,
+                    score: document.getElementById('score').value || null,
+                };
+                break;
+            case 'relation':
+                payload.parameters = { relation: document.getElementById('relationship').value };
+                break;
+            case 'combine':
+                payload.parameters = {
+                    combineQuery: document.getElementById('combine-query').value,
+                    actorName: document.getElementById('actor-name-combine').value || null,
+                    genre: document.getElementById('actor-name-genre').value || null,
+                    year: document.getElementById('year-combine').value || null,
+                };
+                break;
+        }
+        return payload;
+    }
+
+    function runQuery(queryType) {
+        const output = document.getElementById('query-output');
+        const timeComparisonTable = document.getElementById('time-comparison').querySelector('tbody');
+
+        // 清空结果
+        output.textContent = '查询中，请稍候...';
+        timeComparisonTable.innerHTML = '';
+
+        const payload = prepareQueryPayload(queryType);
+
+        // 创建 SSE 连接
+        const queryParams = new URLSearchParams({
+            queryType: queryType,
+            parameters: JSON.stringify(payload.parameters)  // 将参数序列化为 JSON 字符串
+        });
+        const eventSource = new EventSource(`http://127.0.0.1:5000/compare-query-stream?${queryParams}`);
+
+        // 监听 SSE 消息
+        eventSource.onmessage = (event) => {
+            try {
+                const result = JSON.parse(event.data);
+
+                // 动态更新表格
+                const row = document.createElement('tr');
+                if (payload.queryType == "relation" && payload.parameters.relation == "directors") {
+                    row.innerHTML = `
+                        <td>${result.database}</td>
+                        <td>${result.time !== null ? `${result.time} ms` : '查询失败'}</td>
+                        <td>${Array.isArray(result.queryResult) ? JSON.stringify(result.queryResult[1]) : result.queryResult}</td>
+                    `;
+                } else {
+                    row.innerHTML = `
+                        <td>${result.database}</td>
+                        <td>${result.time !== null ? `${result.time} ms` : '查询失败'}</td>
+                        <td>${Array.isArray(result.queryResult) ? JSON.stringify(result.queryResult) : result.queryResult}</td>
+                    `;
+                }
+                timeComparisonTable.appendChild(row);
+            } catch (error) {
+                console.error('JSON 解析错误:', error);
+                output.textContent = '数据格式错误，请检查服务器响应。';
+                eventSource.close();
+            }
+        };
+
+        // 监听错误
+        eventSource.onerror = (event) => {
+            console.error('SSE error:', event);
+            output.textContent = `请求失败，请检查网络或服务器：${event.target.readyState === EventSource.CLOSED ? '连接已关闭' : '未知错误'}`;
+            eventSource.close();
+        };
+
+        // 监听连接关闭
+        eventSource.onclose = () => {
+            console.log('SSE 连接已关闭');
+        };
+    }
+</script>
+</body>
+</html>
